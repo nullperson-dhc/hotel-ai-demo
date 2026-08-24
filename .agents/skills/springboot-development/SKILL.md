@@ -1,17 +1,342 @@
+# Spring Boot Development Skill
+
+## Purpose
+
+用于基于 Java 17 + Spring Boot 3 开发规范、清晰、可运行的后端服务。
+
+适用于：
+
+- REST API
+- Service
+- Repository
+- Transaction
+- Validation
+- Exception Handling
+- JPA
+- H2 / MySQL
+
 ---
-name: springboot-development
-description: Build or modify the Java Spring Boot backend for this project, including APIs, services, persistence, validation, security, configuration, and tests. Use for work under backend/; do not use for frontend-only tasks.
+
+## Recommended Stack
+
+- Java 17
+- Spring Boot 3.x
+- Spring Web
+- Spring Data JPA
+- Jakarta Validation
+- H2 Database
+- Lombok 可选
+- Maven
+
 ---
 
-# Spring Boot Development
+## Package Structure
 
-Implement backend changes consistently with the repository's existing Java and Spring Boot conventions.
+推荐：
 
-- Inspect the current build, package layout, configuration, and established patterns before choosing libraries or structure.
-- Keep controllers focused on HTTP concerns, application services on use cases, and domain logic close to the model that owns it.
-- Validate inputs, use explicit transaction boundaries, and return stable, documented error responses.
-- Protect credentials and environment-specific settings; never commit secrets.
-- Design persistence mappings and schema changes together, accounting for indexes, constraints, concurrency, and migrations.
-- Add proportionate unit or integration tests for observable behavior and failure paths.
-- Update relevant API, database, or technical documentation when contracts or architecture change.
-- Run the repository's formatting, build, and test commands before completion when available.
+com.example.hotel
+
+├── controller
+├── service
+├── repository
+├── entity
+├── dto
+│   ├── request
+│   └── response
+├── domain
+├── exception
+├── config
+└── HotelApplication
+
+禁止把所有代码放在同一个 package。
+
+---
+
+## Layer Responsibility
+
+### Controller
+
+负责：
+
+- HTTP 参数接收
+- 参数校验
+- 调用 Service
+- 返回 Response
+
+禁止：
+
+- 写复杂业务逻辑
+- 直接操作 Repository
+- 自己开启事务
+
+---
+
+### Service
+
+负责：
+
+- 核心业务逻辑
+- 领域校验
+- 事务控制
+- 状态流转
+- 多 Repository 协同
+
+核心业务事务放在 Service 层。
+
+---
+
+### Repository
+
+负责：
+
+- 数据访问
+- 查询
+- 持久化
+
+禁止在 Repository 中混入业务状态判断。
+
+---
+
+## DTO Rule
+
+请求使用 Request DTO。
+
+响应使用 Response DTO。
+
+不要直接把 Entity 当成 API 入参或出参。
+
+例如：
+
+CreateBookingRequest
+
+BookingResponse
+
+---
+
+## Validation
+
+使用 Jakarta Validation。
+
+例如：
+
+@NotNull
+@NotBlank
+@Positive
+@FutureOrPresent
+
+Controller 参数使用：
+
+@Valid
+
+复杂业务校验放 Service。
+
+例如：
+
+checkOutDate > checkInDate
+
+不能只依赖注解完成。
+
+---
+
+## Transaction
+
+涉及：
+
+- 扣库存
+- 创建订单
+
+必须使用同一个事务。
+
+例如：
+
+@Transactional
+public BookingResponse createBooking(...)
+
+事务边界应尽可能放在 Service 层业务方法。
+
+避免：
+
+Controller 使用 @Transactional。
+
+---
+
+## Exception Handling
+
+定义统一业务异常：
+
+BusinessException
+
+建议包含：
+
+- errorCode
+- message
+
+统一使用：
+
+@RestControllerAdvice
+
+处理：
+
+- BusinessException
+- MethodArgumentNotValidException
+- EntityNotFoundException
+- Exception
+
+禁止把异常堆栈直接暴露给前端。
+
+---
+
+## API Response
+
+建议统一结构：
+
+{
+"code": "SUCCESS",
+"message": "success",
+"data": {}
+}
+
+错误示例：
+
+{
+"code": "INVENTORY_NOT_ENOUGH",
+"message": "库存不足",
+"data": null
+}
+
+---
+
+## Entity
+
+Entity 只负责持久化映射。
+
+字段明确：
+
+- @Id
+- @GeneratedValue
+- @Column
+
+日期推荐：
+
+LocalDate
+
+时间推荐：
+
+LocalDateTime
+
+金额推荐：
+
+BigDecimal
+
+禁止：
+
+double price
+
+---
+
+## Money
+
+金额必须使用：
+
+BigDecimal
+
+禁止使用：
+
+float
+double
+
+涉及金额计算时明确 scale 和 rounding mode。
+
+---
+
+## Inventory Update
+
+库存扣减避免：
+
+find -> set -> save
+
+作为唯一并发保护手段。
+
+推荐：
+
+条件更新 SQL：
+
+UPDATE room_inventory
+SET available_stock = available_stock - :count
+WHERE room_type_id = :roomTypeId
+AND biz_date = :bizDate
+AND available_stock >= :count
+
+返回更新行数。
+
+更新行数 != 1 时：
+
+抛出库存不足异常。
+
+或者使用：
+
+@Version
+
+实现乐观锁。
+
+---
+
+## Logging
+
+重要业务节点记录日志：
+
+- 创建订单
+- 扣减库存失败
+- 办理入住
+- 状态流转失败
+
+日志中不要输出敏感信息。
+
+---
+
+## Initialization
+
+Demo 项目应提供初始化数据。
+
+推荐：
+
+data.sql
+
+或 CommandLineRunner。
+
+应至少初始化：
+
+- 1 个酒店
+- 2 个房型
+- 未来若干天库存
+
+保证项目启动后即可演示。
+
+---
+
+## Build Requirement
+
+开发完成必须至少执行：
+
+mvn test
+
+和：
+
+mvn package
+
+确保项目可构建。
+
+---
+
+## Definition of Done
+
+一个后端功能完成必须满足：
+
+1. API 可调用
+2. 参数校验完整
+3. Service 有业务校验
+4. 事务边界正确
+5. 异常统一
+6. Entity 不直接暴露
+7. 单元测试或集成测试覆盖核心路径
+8. Maven 构建成功

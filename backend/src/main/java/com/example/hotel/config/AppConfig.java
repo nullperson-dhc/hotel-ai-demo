@@ -9,6 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AppConfig {
-    @Bean Clock hotelClock() { return Clock.system(ZoneId.of("Asia/Shanghai")); }
-    @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    @Bean
+    Clock hotelClock() {
+        return Clock.system(ZoneId.of("Asia/Shanghai"));
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

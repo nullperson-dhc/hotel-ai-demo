@@ -15,7 +15,7 @@ Agent 之间通过项目中的 Markdown 文档交接，而不是依赖大模型�
 
 ```bash
 cd backend
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 后端默认地址为 `http://localhost:8080`，首次启动会初始化一间酒店、两种房型以及未来 180 天库存。
@@ -38,7 +38,7 @@ npm run dev
 ## 构建与测试
 
 ```bash
-cd backend && mvn test
+cd backend && ./mvnw verify
 cd frontend && npm run build
 ```
 

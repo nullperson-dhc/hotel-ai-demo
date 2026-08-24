@@ -1,3 +1,53 @@
 package com.example.hotel.config;
-import com.example.hotel.domain.*; import com.example.hotel.repository.*; import java.math.BigDecimal; import java.time.*; import org.springframework.boot.CommandLineRunner; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import org.springframework.security.crypto.password.PasswordEncoder;
-@Configuration public class DemoDataInitializer{@Bean CommandLineRunner demo(HotelRepository hotels,RoomTypeRepository rooms,RoomInventoryRepository inventory,StaffUserRepository staff,PasswordEncoder encoder,Clock clock){return args->{if(hotels.count()==0){Hotel h=hotels.save(new Hotel("上海云栖酒店","上海市浦东新区示例路88号"));RoomType king=rooms.save(new RoomType(h,"豪华大床房","1张1.8米大床",2,"城市景观，含独立卫浴",new BigDecimal("399.00")));RoomType twin=rooms.save(new RoomType(h,"豪华双床房","2张1.2米单人床",2,"适合朋友及家庭出行",new BigDecimal("459.00")));LocalDate start=LocalDate.now(clock);for(int i=0;i<180;i++){inventory.save(new RoomInventory(king,start.plusDays(i),5));inventory.save(new RoomInventory(twin,start.plusDays(i),4));}}if(staff.count()==0)staff.save(new StaffUser("frontdesk",encoder.encode("Hotel@123"),"演示前台"));};}}
+
+import com.example.hotel.domain.*;
+import com.example.hotel.repository.*;
+import java.math.BigDecimal;
+import java.time.*;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class DemoDataInitializer {
+    @Bean
+    CommandLineRunner demo(
+            HotelRepository hotels,
+            RoomTypeRepository rooms,
+            RoomInventoryRepository inventory,
+            StaffUserRepository staff,
+            PasswordEncoder encoder,
+            Clock clock) {
+        return args -> {
+            if (hotels.count() == 0) {
+                Hotel h = hotels.save(new Hotel("上海云栖酒店", "上海市浦东新区示例路88号"));
+                RoomType king =
+                        rooms.save(
+                                new RoomType(
+                                        h,
+                                        "豪华大床房",
+                                        "1张1.8米大床",
+                                        2,
+                                        "城市景观，含独立卫浴",
+                                        new BigDecimal("399.00")));
+                RoomType twin =
+                        rooms.save(
+                                new RoomType(
+                                        h,
+                                        "豪华双床房",
+                                        "2张1.2米单人床",
+                                        2,
+                                        "适合朋友及家庭出行",
+                                        new BigDecimal("459.00")));
+                LocalDate start = LocalDate.now(clock);
+                for (int i = 0; i < 180; i++) {
+                    inventory.save(new RoomInventory(king, start.plusDays(i), 5));
+                    inventory.save(new RoomInventory(twin, start.plusDays(i), 4));
+                }
+            }
+            if (staff.count() == 0)
+                staff.save(new StaffUser("frontdesk", encoder.encode("Hotel@123"), "演示前台"));
+        };
+    }
+}

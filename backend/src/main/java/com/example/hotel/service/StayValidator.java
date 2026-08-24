@@ -1,3 +1,26 @@
 package com.example.hotel.service;
-import com.example.hotel.exception.BusinessException; import java.time.*; import java.time.temporal.ChronoUnit; import org.springframework.http.HttpStatus; import org.springframework.stereotype.Component;
-@Component public class StayValidator{private final Clock clock;public StayValidator(Clock clock){this.clock=clock;}public int validate(LocalDate in,LocalDate out){if(in==null||out==null||!out.isAfter(in))throw new BusinessException(HttpStatus.BAD_REQUEST,"INVALID_STAY_PERIOD","离店日期必须晚于入住日期");if(in.isBefore(LocalDate.now(clock)))throw new BusinessException(HttpStatus.BAD_REQUEST,"INVALID_STAY_PERIOD","入住日期不能早于今天");return Math.toIntExact(ChronoUnit.DAYS.between(in,out));}}
+
+import com.example.hotel.exception.BusinessException;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+@Component
+public class StayValidator {
+    private final Clock clock;
+
+    public StayValidator(Clock clock) {
+        this.clock = clock;
+    }
+
+    public int validate(LocalDate in, LocalDate out) {
+        if (in == null || out == null || !out.isAfter(in))
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST, "INVALID_STAY_PERIOD", "离店日期必须晚于入住日期");
+        if (in.isBefore(LocalDate.now(clock)))
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST, "INVALID_STAY_PERIOD", "入住日期不能早于今天");
+        return Math.toIntExact(ChronoUnit.DAYS.between(in, out));
+    }
+}

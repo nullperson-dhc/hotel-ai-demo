@@ -1,5 +1,81 @@
 package com.example.hotel.service;
-import com.example.hotel.domain.*; import com.example.hotel.dto.AvailabilityResponse; import com.example.hotel.exception.BusinessException; import com.example.hotel.repository.*; import java.math.*; import java.time.*; import java.util.*; import org.springframework.http.HttpStatus; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
-@Service public class AvailabilityService{private final HotelRepository hotels;private final RoomTypeRepository rooms;private final RoomInventoryRepository inventory;private final StayValidator validator;public AvailabilityService(HotelRepository h,RoomTypeRepository r,RoomInventoryRepository i,StayValidator v){hotels=h;rooms=r;inventory=i;validator=v;}
-@Transactional(readOnly=true) public AvailabilityResponse find(LocalDate in,LocalDate out,int count){if(count<1)throw new BusinessException(HttpStatus.BAD_REQUEST,"VALIDATION_ERROR","房间数必须大于0");int nights=validator.validate(in,out);Hotel hotel=hotels.findFirstByStatus(Status.ACTIVE).orElseThrow(()->new BusinessException(HttpStatus.NOT_FOUND,"HOTEL_NOT_FOUND","酒店不可用"));var result=rooms.findByHotelIdAndStatus(hotel.getId(),Status.ACTIVE).stream().filter(r->{var rows=inventory.findByRoomTypeIdAndBizDateGreaterThanEqualAndBizDateLessThan(r.getId(),in,out);return rows.size()==nights&&rows.stream().allMatch(x->x.getAvailableStock()>=count);}).map(r->new AvailabilityResponse.RoomTypeSummary(r.getId(),r.getName(),r.getBedType(),r.getCapacity(),r.getDescription(),money(r.getBasePrice()),money(r.getBasePrice().multiply(BigDecimal.valueOf((long)nights*count))))).toList();return new AvailabilityResponse(new AvailabilityResponse.HotelSummary(hotel.getId(),hotel.getName(),hotel.getAddress()),in,out,nights,count,result);}
-private String money(BigDecimal v){return v.setScale(2,RoundingMode.HALF_UP).toPlainString();}}
+
+import com.example.hotel.domain.*;
+import com.example.hotel.dto.AvailabilityResponse;
+import com.example.hotel.exception.BusinessException;
+import com.example.hotel.repository.*;
+import java.math.*;
+import java.time.*;
+import java.util.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class AvailabilityService {
+    private final HotelRepository hotels;
+    private final RoomTypeRepository rooms;
+    private final RoomInventoryRepository inventory;
+    private final StayValidator validator;
+
+    public AvailabilityService(
+            HotelRepository h, RoomTypeRepository r, RoomInventoryRepository i, StayValidator v) {
+        hotels = h;
+        rooms = r;
+        inventory = i;
+        validator = v;
+    }
+
+    @Transactional(readOnly = true)
+    public AvailabilityResponse find(LocalDate in, LocalDate out, int count) {
+        if (count < 1)
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "房间数必须大于0");
+        int nights = validator.validate(in, out);
+        Hotel hotel =
+                hotels.findFirstByStatus(Status.ACTIVE)
+                        .orElseThrow(
+                                () ->
+                                        new BusinessException(
+                                                HttpStatus.NOT_FOUND, "HOTEL_NOT_FOUND", "酒店不可用"));
+        var result =
+                rooms.findByHotelIdAndStatus(hotel.getId(), Status.ACTIVE).stream()
+                        .filter(
+                                r -> {
+                                    var rows =
+                                            inventory
+                                                    .findByRoomTypeIdAndBizDateGreaterThanEqualAndBizDateLessThan(
+                                                            r.getId(), in, out);
+                                    return rows.size() == nights
+                                            && rows.stream()
+                                                    .allMatch(x -> x.getAvailableStock() >= count);
+                                })
+                        .map(
+                                r ->
+                                        new AvailabilityResponse.RoomTypeSummary(
+                                                r.getId(),
+                                                r.getName(),
+                                                r.getBedType(),
+                                                r.getCapacity(),
+                                                r.getDescription(),
+                                                money(r.getBasePrice()),
+                                                money(
+                                                        r.getBasePrice()
+                                                                .multiply(
+                                                                        BigDecimal.valueOf(
+                                                                                (long) nights
+                                                                                        * count)))))
+                        .toList();
+        return new AvailabilityResponse(
+                new AvailabilityResponse.HotelSummary(
+                        hotel.getId(), hotel.getName(), hotel.getAddress()),
+                in,
+                out,
+                nights,
+                count,
+                result);
+    }
+
+    private String money(BigDecimal v) {
+        return v.setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+}

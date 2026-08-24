@@ -321,15 +321,25 @@ data.sql
 
 ## Build Requirement
 
+后端项目必须使用 Maven 管理，保留可被 IntelliJ IDEA 直接导入的 `pom.xml`；项目提供 Maven Wrapper 时优先使用 `./mvnw`，避免依赖开发机的 Maven 版本。
+
+Java 源码必须保持标准换行和缩进，不得把 package、import、类、字段或方法压缩在同一行。使用 Maven Spotless 作为唯一格式化基准：
+
+```bash
+./mvnw spotless:apply
+./mvnw spotless:check
+```
+
+新增或修改 Java 代码后必须先格式化，再执行测试和构建。IDE 中的格式化规则不得与 Maven Spotless 冲突。
+
 开发完成必须至少执行：
 
-mvn test
+```bash
+./mvnw test
+./mvnw verify
+```
 
-和：
-
-mvn package
-
-确保项目可构建。
+确保格式检查、测试和项目构建全部成功。
 
 ---
 
@@ -344,4 +354,6 @@ mvn package
 5. 异常统一
 6. Entity 不直接暴露
 7. 单元测试或集成测试覆盖核心路径
-8. Maven 构建成功
+8. Maven Wrapper 可用，IDEA 可正常导入 `pom.xml`
+9. Spotless 格式检查通过，Java 源码缩进可读
+10. Maven 测试与构建成功

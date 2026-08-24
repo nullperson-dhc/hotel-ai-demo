@@ -1,3 +1,36 @@
 package com.example.hotel.controller;
-import com.example.hotel.dto.*; import com.example.hotel.service.StaffBookingService; import jakarta.validation.constraints.*; import java.security.Principal; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping("/api/v1/staff/bookings") public class StaffBookingController{private final StaffBookingService service;public StaffBookingController(StaffBookingService s){service=s;}@GetMapping PageResponse<OrderResponse> search(@RequestParam(required=false)String orderNo,@RequestParam(required=false)String guestPhone,@RequestParam(defaultValue="0")@Min(0)int page,@RequestParam(defaultValue="20")@Min(1)@Max(100)int size){return service.search(orderNo,guestPhone,page,size);}@GetMapping("/{orderNo}")OrderResponse detail(@PathVariable String orderNo){return service.detail(orderNo);}@PostMapping("/{orderNo}/check-in")OrderResponse checkIn(@PathVariable String orderNo,Principal principal){return service.checkIn(orderNo,principal.getName());}}
+
+import com.example.hotel.dto.*;
+import com.example.hotel.service.StaffBookingService;
+import jakarta.validation.constraints.*;
+import java.security.Principal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/staff/bookings")
+public class StaffBookingController {
+    private final StaffBookingService service;
+
+    public StaffBookingController(StaffBookingService s) {
+        service = s;
+    }
+
+    @GetMapping
+    PageResponse<OrderResponse> search(
+            @RequestParam(required = false) String orderNo,
+            @RequestParam(required = false) String guestPhone,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        return service.search(orderNo, guestPhone, page, size);
+    }
+
+    @GetMapping("/{orderNo}")
+    OrderResponse detail(@PathVariable String orderNo) {
+        return service.detail(orderNo);
+    }
+
+    @PostMapping("/{orderNo}/check-in")
+    OrderResponse checkIn(@PathVariable String orderNo, Principal principal) {
+        return service.checkIn(orderNo, principal.getName());
+    }
+}

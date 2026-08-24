@@ -17,6 +17,7 @@ import com.example.hotel.service.StaffBookingService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class HotelAcceptanceTest {
-    private static final LocalDate TODAY = LocalDate.of(2026, 8, 24);
+    private static final LocalDate TODAY = LocalDate.now(ZoneId.of("Asia/Shanghai"));
 
     @Autowired BookingService bookings;
     @Autowired AvailabilityService availability;

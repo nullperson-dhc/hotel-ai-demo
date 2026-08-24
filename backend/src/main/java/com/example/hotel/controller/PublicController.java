@@ -1,0 +1,6 @@
+package com.example.hotel.controller;
+import com.example.hotel.dto.*; import com.example.hotel.service.*; import jakarta.validation.Valid; import java.net.URI; import java.time.LocalDate; import org.springframework.http.*; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/api/v1") public class PublicController{private final AvailabilityService availability;private final BookingService bookings;public PublicController(AvailabilityService a,BookingService b){availability=a;bookings=b;}
+@GetMapping("/availability") AvailabilityResponse availability(@RequestParam LocalDate checkInDate,@RequestParam LocalDate checkOutDate,@RequestParam int roomCount){return availability.find(checkInDate,checkOutDate,roomCount);}
+@PostMapping("/bookings") ResponseEntity<OrderResponse> create(@RequestHeader(value="Idempotency-Key",required=false)String key,@Valid @RequestBody CreateBookingRequest request){var result=bookings.create(key,request);if(result.created())return ResponseEntity.created(URI.create("/api/v1/bookings/"+result.order().orderNo())).body(result.order());return ResponseEntity.ok(result.order());}
+@PostMapping("/bookings/query") OrderResponse query(@Valid @RequestBody GuestOrderQuery query){return bookings.guestQuery(query);}}

@@ -1,0 +1,3 @@
+package com.example.hotel.config;
+import com.alibaba.cola.statemachine.*; import com.alibaba.cola.statemachine.builder.*; import com.example.hotel.domain.*; import jakarta.annotation.PostConstruct; import org.springframework.context.annotation.Configuration;
+@Configuration public class OrderStateMachineConfig{public static final String MACHINE_ID="bookingOrder";@PostConstruct void build(){StateMachineBuilder<OrderStatus,OrderEvent,Object> b=StateMachineBuilderFactory.create();b.externalTransition().from(OrderStatus.BOOKED).to(OrderStatus.CHECKED_IN).on(OrderEvent.CHECK_IN).when(ctx->true).perform((from,to,event,ctx)->{});b.build(MACHINE_ID);}}

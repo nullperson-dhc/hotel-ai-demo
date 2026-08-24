@@ -1,0 +1,3 @@
+package com.example.hotel.config;
+import jakarta.servlet.*; import jakarta.servlet.http.*; import java.io.IOException; import java.util.UUID; import org.springframework.stereotype.Component; import org.springframework.web.filter.OncePerRequestFilter;
+@Component public class RequestIdFilter extends OncePerRequestFilter{protected void doFilterInternal(HttpServletRequest req,HttpServletResponse res,FilterChain chain)throws ServletException,IOException{String id=req.getHeader("X-Request-Id");if(id==null||!id.matches("[A-Za-z0-9._-]{1,100}"))id=UUID.randomUUID().toString();req.setAttribute("traceId",id);res.setHeader("X-Request-Id",id);chain.doFilter(req,res);}}

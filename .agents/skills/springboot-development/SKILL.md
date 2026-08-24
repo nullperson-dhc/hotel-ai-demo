@@ -1,3 +1,8 @@
+---
+name: springboot-development
+description: 使用 Java 17、Spring Boot 3、Spring Data JPA 等技术开发酒店项目后端，包括 REST API、分层、事务、校验、异常处理和库存一致性。适用于 backend/ 下的后端实现；不用于纯前端任务。
+---
+
 # Spring Boot Development Skill
 
 ## Purpose

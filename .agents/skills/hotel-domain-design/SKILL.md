@@ -1,3 +1,8 @@
+---
+name: hotel-domain-design
+description: 用于酒店预订系统的领域建模、库存、订单状态及入住离店等核心业务规则设计。适用于酒店领域分析与业务建模；不用于具体框架代码实现。
+---
+
 # Hotel Domain Design Skill
 
 ## Purpose

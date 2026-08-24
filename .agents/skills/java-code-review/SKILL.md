@@ -1,3 +1,8 @@
+---
+name: java-code-review
+description: 审查 Java 与 Spring Boot 后端变更的架构、业务正确性、事务、并发、数据一致性、安全性、性能和测试覆盖。仅在用户请求 Java 或后端代码审查时使用；普通开发任务不自动触发。
+---
+
 # Java Code Review Skill
 
 ## Purpose

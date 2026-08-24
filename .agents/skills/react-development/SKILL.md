@@ -1,3 +1,8 @@
+---
+name: react-development
+description: 使用 React、TypeScript、Vite 和 Ant Design 开发酒店 Demo 前端，包括页面、API 集成、表单、状态处理和构建验证。适用于 frontend/ 下的前端实现；不用于纯后端任务。
+---
+
 # React Development Skill
 
 ## Purpose
